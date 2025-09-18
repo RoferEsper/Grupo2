@@ -1,1 +1,198 @@
-Aqui va toda la documentacion del tp.
+📘 Documentación del Sistema de Gestión de Cursos, Estudiantes e Inscripciones
+1. 📌 Descripción General
+
+Este proyecto es un sistema para administrar cursos, estudiantes e inscripciones en una institución educativa.
+Está dividido en dos módulos principales:
+
+Backend → API REST con Node.js, Express y MySQL.
+
+Frontend → Aplicación web con React (Vite) para la gestión visual de CRUDs.
+
+El sistema permite:
+
+Crear, leer, actualizar y eliminar (CRUD) cursos.
+
+CRUD de estudiantes.
+
+CRUD de inscripciones (relación estudiante ↔ curso).
+
+2. ⚙️ Tecnologías Utilizadas
+Backend
+
+Node.js → Entorno de ejecución.
+
+Express.js → Framework para construir la API REST.
+
+MySQL → Base de datos relacional.
+
+CORS → Para permitir la conexión con el frontend.
+
+Nodemon (opcional) → Para recargar automáticamente el servidor en desarrollo.
+
+Frontend
+
+React (con Vite) → Framework para construir la interfaz de usuario.
+
+React Router DOM → Manejo de rutas entre páginas (Cursos, Estudiantes, Inscripciones).
+
+Axios → Cliente HTTP para consumir la API REST del backend.
+
+CSS → Estilos personalizados para cada página y componente.
+
+3. 🗄️ Estructura del Proyecto
+Backend
+backend/
+├─ configDB/
+│   └─ dataBase.js
+├─ controllers/
+│   ├─ cursos.js
+│   ├─ estudiantes.js
+│   └─ inscripciones.js
+├─ routers/
+│   ├─ cursos.js
+│   ├─ estudiantes.js
+│   └─ inscripciones.js
+├─ index.js
+└─ package.json
+
+Frontend
+frontend/
+├─ src/
+│   ├─ components/
+│   │   └─ CRUD/
+│   │       ├─ CursosCrud.jsx
+│   │       ├─ EstudiantesCrud.jsx
+│   │       └─ InscripcionesCrud.jsx
+│   ├─ constants/
+│   │   └─ endpoints.js
+│   ├─ pages/
+│   │   ├─ CursosPage.jsx
+│   │   ├─ EstudiantesPage.jsx
+│   │   └─ InscripcionesPage.jsx
+│   ├─ routers/
+│   │   └─ AppRouter.jsx
+│   ├─ styles/
+│   │   ├─ cursos.css
+│   │   ├─ estudiantes.css
+│   │   └─ inscripciones.css
+│   ├─ App.jsx
+│   └─ main.jsx
+└─ package.json
+
+4. 🛢️ Base de Datos MySQL
+CREATE TABLE cursos (
+  id_curso INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  descripcion TEXT
+);
+
+CREATE TABLE estudiantes (
+  id_estudiante INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL
+);
+
+CREATE TABLE inscripciones (
+  id_inscripcion INT AUTO_INCREMENT PRIMARY KEY,
+  id_estudiante INT,
+  id_curso INT,
+  fecha_inscripcion DATE,
+  FOREIGN KEY (id_estudiante) REFERENCES estudiantes(id_estudiante),
+  FOREIGN KEY (id_curso) REFERENCES cursos(id_curso)
+);
+
+5. 🔗 Conexión Backend – Frontend
+
+Backend expone la API REST en http://localhost:3000 con rutas:
+
+GET /cursos → Listar cursos
+
+POST /cursos → Crear curso
+
+PUT /cursos/:id → Actualizar curso
+
+DELETE /cursos/:id → Eliminar curso
+
+(Lo mismo para estudiantes e inscripciones).
+
+Frontend consume los endpoints definidos en src/constants/endpoints.js:
+
+export const ENDPOINTS = {
+  cursos: "http://localhost:3000/cursos",
+  estudiantes: "http://localhost:3000/estudiantes",
+  inscripciones: "http://localhost:3000/inscripciones"
+};
+
+
+Axios maneja las peticiones en los componentes CRUD:
+
+import axios from "axios";
+import { ENDPOINTS } from "../../constants/endpoints";
+
+const fetchCursos = async () => {
+  const res = await axios.get(ENDPOINTS.cursos);
+  setCursos(res.data);
+};
+
+6. 🚀 Cómo Ejecutar el Proyecto
+1️⃣ Configurar la base de datos
+
+Crear la base de datos en MySQL (usar el script de arriba).
+
+Ajustar dataBase.js con tus credenciales:
+
+const mysql = require("mysql2");
+
+const connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "tu_password",
+  database: "nombre_base"
+});
+
+connection.connect(err => {
+  if (err) throw err;
+  console.log("Conectado a MySQL");
+});
+
+module.exports = { connection };
+
+2️⃣ Levantar el Backend
+cd backend
+npm install
+node index.js
+
+
+Deberías ver:
+
+Backend corriendo en http://localhost:3000
+
+3️⃣ Levantar el Frontend
+cd frontend
+npm install
+npm run dev
+
+
+Abrir en:
+👉 http://localhost:5173
+
+7. ✅ Pruebas de Funcionamiento
+Con Thunder Client 
+
+GET http://localhost:3000/cursos → lista cursos.
+
+POST http://localhost:3000/cursos con body JSON:
+
+{ "nombre": "Matemáticas", "descripcion": "Curso básico" }
+
+
+Verificar que aparezca en el frontend en CursosPage.
+
+8. 📖 Conclusión
+
+El backend administra los datos en MySQL mediante una API REST.
+
+El frontend en React consume esa API para permitir a los usuarios gestionar cursos, estudiantes e inscripciones de forma intuitiva.
+
+El sistema es escalable y modular: se pueden agregar nuevas entidades o páginas sin romper la arquitectura actual.
+
